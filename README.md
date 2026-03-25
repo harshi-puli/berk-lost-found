@@ -14,6 +14,7 @@ A live web dashboard that automatically scrapes **r/berkeley** for lost item pos
 ## Live Demo
 🔗 https://berk-lost-found.onrender.com/
 > First load may take ~30 seconds because it'a on the free tier
+> If it takes too long to load you can also run it locally with instructions below.
 
 ## Features
 - Scrapes r/berkeley for lost item posts using Reddit's public JSON API
