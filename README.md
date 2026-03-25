@@ -44,13 +44,6 @@ python app.py
 
 Then open `http://localhost:5000`
 
-## Deploy to Render
-
-1. Push this repo to GitHub
-2. Go to [render.com](https://render.com) → New Web Service
-3. Connect your GitHub repo
-4. Render auto-detects `render.yaml` and deploys
-
 ## Project Structure
 ```
 berkeley-lost-found/
