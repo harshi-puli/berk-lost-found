@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berkeley Lost & Found</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --ink: #1a1a1a;
+    --muted: #888880;
+    --accent: #d4421a;
+    --accent-light: #fce8e2;
+    --border: #d8d3c8;
+    --card: #ffffff;
+    --tag-lost: #d4421a;
+    --tag-bg: #fce8e2;
+    --green: #2a7a4b;
+    --green-bg: #e2f5eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+  .header-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  /* HERO STRIP */
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 2.5rem 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: end;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+    display: block;
+  }
+  .hero-sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+    max-width: 320px;
+    line-height: 1.6;
+    margin-top: 1rem;
+  }
+  .stats-box {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 1.25rem 1.75rem;
+    border-radius: 4px;
+    text-align: center;
+    min-width: 130px;
+  }
+  .stats-box .num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .stats-box .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-top: 0.25rem;
+  }
+
+  /* CONTROLS */
+  .controls {
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    background: var(--card);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .filter-btn {
+    padding: 0.6rem 1.1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    background: var(--card);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+  .refresh-btn {
+    padding: 0.6rem 1.25rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--ink);
+    color: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .refresh-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .refresh-btn.loading { opacity: 0.6; pointer-events: none; }
+
+  /* MAIN GRID */
+  main {
+    padding: 2rem 2.5rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    background: var(--tag-bg);
+    color: var(--tag-lost);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .card-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .card-body {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: #555;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+  }
+  .card-author {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+  .card-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .card-link:hover { border-bottom-color: var(--accent); }
+
+  /* EMPTY STATE */
+  .empty {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--muted);
+  }
+  .empty .big { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--border); }
+  .empty p { margin-top: 0.5rem; font-size: 0.9rem; }
+
+  /* LOADING */
+  .loading-state {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 4rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+  }
+  .spinner {
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TICKER TAPE */
+  .ticker {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 0.5rem 0;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  .ticker-inner {
+    display: flex;
+    gap: 3rem;
+    white-space: nowrap;
+    animation: ticker 25s linear infinite;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+  }
+  .ticker-inner span { color: var(--accent); margin-right: 0.5rem; }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* SCRAPED AT */
+  .scraped-at {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    padding: 0.75rem 2.5rem;
+    border-top: 1px solid var(--border);
+    margin-bottom: 4rem;
+  }
+
+  @media (max-width: 600px) {
+    header, .hero, .controls, main, .scraped-at { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .hero { grid-template-columns: 1fr; }
+    .stats-box { justify-self: start; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="/">Berkeley <span>Lost</span> & Found</a>
+  <div class="header-meta">
+    Powered by r/berkeley<br>
+    Auto-updated · Resolved items removed
+  </div>
+</header>
+
+<div class="hero">
+  <div>
+    <h1>Lost something<em>in Berkeley?</em></h1>
+    <p class="hero-sub">Real-time tracker of lost items posted to r/berkeley. Posts where someone replied they found it are automatically removed.</p>
+  </div>
+  <div class="stats-box">
+    <div class="num" id="count">—</div>
+    <div class="label">Active<br>Lost Items</div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="search" placeholder="Search by keyword, item, location..." oninput="filterPosts()">
+  </div>
+  <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+  <button class="filter-btn" onclick="setFilter('recent', this)">Last 7 days</button>
+  <button class="filter-btn" onclick="setFilter('month', this)">This month</button>
+  <button class="refresh-btn" onclick="refreshData()" id="refresh-btn">
+    ↻ Refresh
+  </button>
+</div>
+
+<main>
+  <div class="grid" id="grid">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      Loading lost items...
+    </div>
+  </div>
+</main>
+
+<div class="scraped-at" id="scraped-at"></div>
+
+<div class="ticker" id="ticker-wrap" style="display:none">
+  <div class="ticker-inner" id="ticker"></div>
+</div>
+
+<script>
+  let allPosts = [];
+  let currentFilter = 'all';
+
+  async function loadPosts() {
+    try {
+      const res = await fetch('/api/posts');
+      const data = await res.json();
+      allPosts = data.posts || [];
+      
+      document.getElementById('count').textContent = allPosts.length;
+      
+      if (data.scraped_at) {
+        const d = new Date(data.scraped_at);
+        document.getElementById('scraped-at').textContent = 
+          `Last scraped: ${d.toLocaleString()} · ${allPosts.length} active items · Resolved posts automatically excluded`;
+      }
+
+      renderPosts(allPosts);
+      buildTicker(allPosts);
+    } catch(e) {
+      document.getElementById('grid').innerHTML = 
+        '<div class="empty"><div class="big">!</div><p>Could not load data. Run scraper.py first.</p></div>';
+    }
+  }
+
+  function renderPosts(posts) {
+    const grid = document.getElementById('grid');
+    document.getElementById('count').textContent = posts.length;
+
+    if (posts.length === 0) {
+      grid.innerHTML = '<div class="empty"><div class="big">∅</div><p>No active lost items found.</p></div>';
+      return;
+    }
+
+    grid.innerHTML = posts.map((p, i) => `
+      <div class="card" style="animation-delay: ${i * 0.04}s">
+        <div class="card-top">
+          <span class="tag">● Lost</span>
+          <span class="card-date">${p.created_date || ''}</span>
+        </div>
+        <div class="card-title">${escapeHtml(p.title)}</div>
+        ${p.body ? `<div class="card-body">${escapeHtml(p.body)}</div>` : ''}
+        <div class="card-footer">
+          <span class="card-author">u/${escapeHtml(p.author)} · ${p.num_comments} comments</span>
+          <a class="card-link" href="${p.url}" target="_blank" rel="noopener">View post →</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function filterPosts() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const now = Date.now() / 1000;
+
+    let filtered = allPosts.filter(p => {
+      const text = (p.title + ' ' + p.body).toLowerCase();
+      const matchesSearch = !query || text.includes(query);
+      let matchesFilter = true;
+
+      if (currentFilter === 'recent') matchesFilter = (now - p.created_utc) < 7 * 86400;
+      if (currentFilter === 'month') matchesFilter = (now - p.created_utc) < 30 * 86400;
+
+      return matchesSearch && matchesFilter;
+    });
+
+    renderPosts(filtered);
+  }
+
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterPosts();
+  }
+
+  async function refreshData() {
+    const btn = document.getElementById('refresh-btn');
+    btn.classList.add('loading');
+    btn.textContent = '↻ Scraping...';
+
+    try {
+      const res = await fetch('/api/refresh', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        await loadPosts();
+        btn.textContent = '✓ Updated!';
+        setTimeout(() => { btn.textContent = '↻ Refresh'; btn.classList.remove('loading'); }, 2000);
+      }
+    } catch(e) {
+      btn.textContent = '✗ Failed';
+      btn.classList.remove('loading');
+      setTimeout(() => { btn.textContent = '↻ Refresh'; }, 2000);
+    }
+  }
+
+  function buildTicker(posts) {
+    if (posts.length === 0) return;
+    const wrap = document.getElementById('ticker-wrap');
+    const ticker = document.getElementById('ticker');
+    const items = [...posts, ...posts].map(p => 
+      `<span>●</span>${escapeHtml(p.title.substring(0, 60))}${p.title.length > 60 ? '...' : ''}`
+    ).join('&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;');
+    ticker.innerHTML = items;
+    wrap.style.display = 'block';
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  loadPosts();
+</script>
+</body>
+</html>
