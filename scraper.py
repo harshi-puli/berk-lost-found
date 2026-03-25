@@ -2,6 +2,7 @@ import requests
 import json
 import time
 from datetime import datetime
+from datetime import timezone
 
 HEADERS = {"User-Agent": "berkeley-lost-found/1.0"}
 
@@ -88,5 +89,5 @@ def scrape_berkeley():
 if __name__ == "__main__":
     posts = scrape_berkeley()
     with open("berkeley_lost.json", "w") as f:
-        json.dump({"scraped_at": datetime.now(datetime.UTC).isoformat(), "posts": posts}, f, indent=2)
+        json.dump({"scraped_at": datetime.now(timezone.utc).isoformat(), "posts": posts}, f, indent=2)
     print("Saved to berkeley_lost.json")

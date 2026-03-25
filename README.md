@@ -2,6 +2,19 @@
 
 A live web dashboard that automatically scrapes **r/berkeley** for lost item posts and removes any that have been resolved (i.e. a comment says the item was found/returned).
 
+## Preview
+
+<div align="center">
+  <img src="screenshots/dashboard.png" width="49%" />
+  <img src="screenshots/keychainsearch.png" width="49%" />
+  <br/>
+  <em>Dashboard view &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Search & filter</em>
+</div>
+
+## Live Demo
+🔗 https://berk-lost-found.onrender.com/
+> First load may take ~30 seconds because it'a on the free tier
+
 ## Features
 - Scrapes r/berkeley for lost item posts using Reddit's public JSON API
 - Auto-filters resolved posts by scanning comments for "found" signals
